@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SpendWise.Application\SpendWise.Application.csproj" />
+    <ProjectReference Include="..\SpendWise.Domain\SpendWise.Domain.csproj" />
+    <ProjectReference Include="..\SpendWise.SharedKernel\SpendWise.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>
