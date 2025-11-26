@@ -1,12 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SpendWise.SharedKernel.Domain.Entities;
+using SpendWise.SharedKernel.ErrorHandling;
 
-namespace SpendWise.Domain.Users.ValueObjects
+namespace SpendWise.Domain.Users.ValueObjects;
+
+public sealed class FirstName(string Value) : ValueObject
 {
-    internal class FirstName
+    public const int MaxLength = 100;
+
+    public static Result<FirstName> Create(string firstName)
     {
+        if (string.IsNullOrWhiteSpace(firstName))
+        {
+            return Result.Failure<FirstName>(new Error(
+                "firstName.Empty",
+                "Firstname cannot be empty."));
+        }
+
+        if (firstName.Length > MaxLength)
+        {
+            return Result.Failure<FirstName>(new Error(
+                "FirstName.TooLong",
+                $"Firstname is too long. Maximum Length is {MaxLength} characters."
+            ));
+        }
+
+        return new FirstName(firstName);
     }
+
+    public override IEnumerable<object> GetAtomicValues()
+    {
+        yield return Value;
+    }
+
+    public override string ToString()
+        => Value.ToString();
+
 }

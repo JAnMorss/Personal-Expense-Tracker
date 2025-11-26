@@ -1,12 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace SpendWise.Domain.Users.Entities;
 
-namespace SpendWise.Domain.Users.Entities
+public sealed class Role
 {
-    internal class Role
+    public static readonly Role Registered = new(1, "Registered");
+
+    public Role(int id, string name)
     {
+        Id = id;
+        Name = name;
     }
+
+    public int Id { get; init; }
+
+    public string Name { get; init; }
+
+    public ICollection<User> Users { get; init; } = new List<User>();
 }

@@ -11,6 +11,11 @@
             Id = id;
         }
 
+        protected BaseEntity()
+        {
+            
+        }
+
         public IReadOnlyList<IDomainEvent> GetDomainEvents()
         {
             return _domainEvents.ToList();
