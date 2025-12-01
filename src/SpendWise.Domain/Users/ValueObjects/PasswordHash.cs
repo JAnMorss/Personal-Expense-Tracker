@@ -5,8 +5,14 @@ using System.Security.Cryptography;
 
 namespace SpendWise.Domain.Users.ValueObjects;
 
-public sealed class PasswordHash(string Value) : ValueObject
+public sealed class PasswordHash : ValueObject
 {
+    public string Value { get; }
+
+    public PasswordHash(string value)
+    {
+        Value = value;
+    }
 
     public static PasswordHash FromPlainText(string password)
     {

@@ -2,6 +2,7 @@
 using SpendWise.Domain.Users.ValueObjects;
 using SpendWise.SharedKernel.Domain.Entities;
 using SpendWise.SharedKernel.ErrorHandling;
+using System.Net.Mail;
 
 namespace SpendWise.Domain.Users.Entities;
 
@@ -9,10 +10,8 @@ public sealed class User : BaseEntity
 {
     private readonly List<RefreshToken> _refreshTokens = new();
 
-    private User()
-    {
-        
-    }
+    private User() { }
+
     public User(
         Guid id,
         FirstName firstName,
@@ -47,57 +46,102 @@ public sealed class User : BaseEntity
     public IReadOnlyCollection<RefreshToken> RefreshTokens 
         => _refreshTokens.AsReadOnly();
 
-    public Result Create(
+     public static Result<User> Create(
         Guid id,
         string firstName,
         string lastName,
         int age,
-        string emai,
+        string email,
         string? avatar,
         string passwordHash)
-    {
-        var firstNameResult = FirstName.Create(firstName);
-        if (firstNameResult.IsFailure)
-            return Result.Failure(firstNameResult.Error);
-
-        var lastNameResult = LastName.Create(lastName);
-        if (lastNameResult.IsFailure)
-            return Result.Failure(lastNameResult.Error);
-
-        var ageResult = Age.Create(age);
-        if (ageResult.IsFailure)
-            return Result.Failure(ageResult.Error);
-
-        var emailResult = Email.Create(emai);
-        if (emailResult.IsFailure)
-            return Result.Failure(emailResult.Error);
+     {
+        var firstNameResult = ResultHelper.CreateOrFail(FirstName.Create, firstName);
+        var lastNameResult = ResultHelper.CreateOrFail(LastName.Create, lastName);
+        var ageResult = ResultHelper.CreateOrFail(Age.Create, age);
+        var emailResult = ResultHelper.CreateOrFail(Email.Create, email);
+        var passwordHashResult = ResultHelper.CreateOrFail(PasswordHash.Create, passwordHash);
 
         Avatar? avatarValue = null;
         if (!string.IsNullOrWhiteSpace(avatar))
         {
-            var avatarResult = Avatar.Create(avatar!);
-            if (avatarResult.IsFailure)
-                return Result.Failure(avatarResult.Error);
+            var avatarResult = ResultHelper.CreateOrFail(Avatar.Create, avatar);
 
-            avatarValue = avatarResult.Value;
+            avatarValue = avatarResult;
         }
-
-        var passwordHashResult = PasswordHash.Create(passwordHash);
-        if (passwordHashResult.IsFailure)
-            return Result.Failure(passwordHashResult.Error);
 
         var user = new User(
             id,
-            firstNameResult.Value,
-            lastNameResult.Value,
-            ageResult.Value,
-            emailResult.Value,
-            passwordHashResult.Value,
+            firstNameResult,
+            lastNameResult,
+            ageResult,
+            emailResult,
+            passwordHashResult,
             avatarValue,
             Role.Registered);
 
         user.RaiseDomainEvent(new UserCreatedDomainEvent(user.Id));
 
         return Result.Success(user);
+     }
+
+    public Result<User> UpdateDetails(
+        string firstName,
+        string lastName,
+        int age,
+        string email)
+    {
+        bool changed = false;
+
+        if (!string.IsNullOrWhiteSpace(firstName) && firstName != FirstName?.Value)
+        {
+            var firstNameResult = ResultHelper.CreateOrFail(FirstName.Create, firstName);
+
+            FirstName = firstNameResult;
+            changed = true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(lastName) && lastName != LastName?.Value)
+        {
+            var lastNameResult = ResultHelper.CreateOrFail(LastName.Create, lastName);
+
+            LastName = lastNameResult;
+            changed = true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(age.ToString()) && age != Age?.Value)
+        {
+            var ageResult = ResultHelper.CreateOrFail(Age.Create, age);
+
+            Age = ageResult;
+            changed = true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(email) && email != Email?.Value)
+        {
+            var emailResult = ResultHelper.CreateOrFail(Email.Create, email);
+
+            Email = emailResult;
+            changed = true;
+        }
+
+        if (changed)
+        {
+            UpdateAt = DateTime.UtcNow;
+            RaiseDomainEvent(new UserUpdatedDomainEvent(Id));
+        }
+
+        return Result.Success(this);
+    }
+
+    public Result UpdateAvatar(string avatarUrl)
+    {
+        var avatar = ResultHelper.CreateOrFail(Avatar.Create, avatarUrl);
+
+        Avatar = avatar;
+        UpdateAt = DateTime.UtcNow;
+
+        RaiseDomainEvent(new UserAvatarUpdatedDomainEvent(Id));
+
+        return Result.Success(avatar);
     }
 }

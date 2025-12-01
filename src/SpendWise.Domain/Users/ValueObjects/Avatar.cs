@@ -3,8 +3,16 @@ using SpendWise.SharedKernel.ErrorHandling;
 
 namespace SpendWise.Domain.Users.ValueObjects;
 
-public sealed class Avatar(string Value) : ValueObject
+public sealed class Avatar : ValueObject
 {
+    public string Value { get; }
+
+    public Avatar(string value)
+    {
+        Value = value;
+    }
+
+
     public static Result<Avatar> Create(string avatar) 
     {
         if (!Uri.TryCreate(avatar, UriKind.Absolute, out var uriResult) || 

@@ -3,9 +3,15 @@ using SpendWise.SharedKernel.ErrorHandling;
 
 namespace SpendWise.Domain.Users.ValueObjects;
 
-public sealed class FirstName(string Value) : ValueObject
+public sealed class FirstName : ValueObject
 {
+    public string Value { get; }
     public const int MaxLength = 100;
+
+    public FirstName(string value)
+    {
+        Value = value;
+    }
 
     public static Result<FirstName> Create(string firstName)
     {

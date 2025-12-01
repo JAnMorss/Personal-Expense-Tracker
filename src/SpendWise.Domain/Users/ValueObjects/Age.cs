@@ -3,8 +3,14 @@ using SpendWise.SharedKernel.ErrorHandling;
 
 namespace SpendWise.Domain.Users.ValueObjects;
 
-public sealed class Age(int Value) : ValueObject
+public sealed class Age : ValueObject
 {
+    public int Value { get; }
+
+    public Age(int value)
+    {
+        Value = value;
+    }
 
     public static Result<Age> Create(int age)
     {

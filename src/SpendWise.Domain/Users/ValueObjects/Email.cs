@@ -4,8 +4,14 @@ using System.Net.Mail;
 
 namespace SpendWise.Domain.Users.ValueObjects;
 
-public sealed class Email(string Value) : ValueObject
+public sealed class Email : ValueObject
 {
+    public string Value { get; }
+
+    public Email(string value)
+    {
+        Value = value;
+    }
 
     public static Result<Email> Create(string email)
     {
