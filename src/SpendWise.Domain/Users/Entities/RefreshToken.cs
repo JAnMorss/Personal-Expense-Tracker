@@ -4,6 +4,18 @@ namespace SpendWise.Domain.Users.Entities;
 
 public sealed class RefreshToken : BaseEntity
 {
+    private RefreshToken() { }
+    public RefreshToken(
+        Guid userId,
+        string token,
+        DateTime expiryDate)
+    {
+        UserId = userId;
+        Token = token;
+        ExpiryDate = expiryDate;
+        IsRevoked = false;
+    }
+
     public Guid UserId { get; private set; }
 
     public string Token { get; private set; } = null!;

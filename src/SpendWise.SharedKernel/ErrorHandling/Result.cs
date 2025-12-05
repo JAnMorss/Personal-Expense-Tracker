@@ -14,12 +14,12 @@ public class Result
     {
         if (isSuccess && error != Error.None)
         {
-            throw new InvalidOperationException("A successful result cannot contain an error.");
+            throw new InvalidOperationException("A successful result must not have an error");
         }
 
         if (!isSuccess && error == Error.None)
         {
-            throw new InvalidOperationException("A failure result must contain an error.");
+            throw new InvalidOperationException("A failed result must have an error");
         }
 
         IsSuccess = isSuccess;
@@ -47,14 +47,13 @@ public class Result
 public class Result<TValue> : Result
 {
     private readonly TValue? _value;
-    protected internal Result(TValue? value, bool isSuccess, Error error) 
+
+    protected internal Result(TValue? value, bool isSuccess, Error error)
         : base(isSuccess, error) => _value = value;
-    
+
     public TValue Value => IsSuccess
         ? _value!
-        : throw new InvalidOperationException("Cannot access the value of a failed result.");
+        : throw new InvalidOperationException("The value of a failure result cannot be accessed.");
 
-    public static implicit operator Result<TValue>(TValue? value)
-        => Create(value);
+    public static implicit operator Result<TValue>(TValue? value) => Create(value);
 }
-

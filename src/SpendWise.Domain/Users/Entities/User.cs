@@ -2,13 +2,13 @@
 using SpendWise.Domain.Users.ValueObjects;
 using SpendWise.SharedKernel.Domain.Entities;
 using SpendWise.SharedKernel.ErrorHandling;
-using System.Net.Mail;
 
 namespace SpendWise.Domain.Users.Entities;
 
 public sealed class User : BaseEntity
 {
     private readonly List<RefreshToken> _refreshTokens = new();
+    private readonly List<Role> _roles = new();
 
     private User() { }
 
@@ -19,8 +19,7 @@ public sealed class User : BaseEntity
         Age age,
         Email email,
         PasswordHash passwordHash,
-        Avatar? avatar,
-        Role role) : base(id)
+        Avatar? avatar) : base(id)
     {
         FirstName = firstName;
         LastName = lastName;
@@ -28,7 +27,6 @@ public sealed class User : BaseEntity
         Email = email;
         PasswordHash = passwordHash;
         Avatar = avatar;
-        Role = role;
         CreatedAt = DateTime.UtcNow;
         UpdateAt = null;
     }
@@ -45,8 +43,10 @@ public sealed class User : BaseEntity
 
     public IReadOnlyCollection<RefreshToken> RefreshTokens 
         => _refreshTokens.AsReadOnly();
+    public IReadOnlyCollection<Role> Roles 
+        => _roles.ToList();
 
-     public static Result<User> Create(
+    public static Result<User> Create(
         Guid id,
         string firstName,
         string lastName,
@@ -76,10 +76,11 @@ public sealed class User : BaseEntity
             ageResult,
             emailResult,
             passwordHashResult,
-            avatarValue,
-            Role.Registered);
+            avatarValue);
 
         user.RaiseDomainEvent(new UserCreatedDomainEvent(user.Id));
+
+        user._roles.Add(Role.Registered);
 
         return Result.Success(user);
      }
@@ -144,4 +145,7 @@ public sealed class User : BaseEntity
 
         return Result.Success(avatar);
     }
+
+    public void AddRefreshToken(RefreshToken refreshToken)
+        => _refreshTokens.Add(refreshToken);
 }

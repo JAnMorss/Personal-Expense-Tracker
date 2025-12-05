@@ -21,7 +21,7 @@
             return _domainEvents.ToList();
         }
 
-        public void ClearDomainEvent()
+        public void ClearDomainEvents()
             => _domainEvents.Clear();
 
         protected void RaiseDomainEvent(IDomainEvent domainEvent)
