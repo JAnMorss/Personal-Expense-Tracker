@@ -7,17 +7,6 @@ namespace SpendWise.Domain.UnitTests.Users;
 
 public class UserTests : BaseTest
 {
-    private static User CreateValidUser()
-    {
-        return User.Create(
-            UserData.Id,
-            UserData.FirstName.Value,
-            UserData.LastName.Value,
-            UserData.Age.Value,
-            UserData.Email.Value,
-            UserData.Avatar.Value,
-            UserData.PasswordHash.Value).Value;
-    }
 
     [Fact]
     public void Create_Should_ShouldReturnSuccess_And_Raise_Events()
@@ -53,7 +42,7 @@ public class UserTests : BaseTest
     public void UpdateDetails_Should_Update_User_Values_And_Raise_Events()
     {
         // Arrange
-        var user = CreateValidUser();
+        var user = UserData.Create();
         var newFirstName = "Janmors";
         var newLastName = "Morales";
         var newAge = 30;
@@ -83,7 +72,7 @@ public class UserTests : BaseTest
     public void UpdateAvatar_Should_Update_Avatar_And_Raise_Events()
     {
         // Arrange
-        var user = CreateValidUser();
+        var user = UserData.Create();
         var newAvatarUrl = "https://example.com/newavatar.png";
 
         // Act

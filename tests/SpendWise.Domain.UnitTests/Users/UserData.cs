@@ -5,6 +5,15 @@ namespace SpendWise.Domain.UnitTests.Users;
 
 internal static class UserData
 {
+    public static User Create() => User.Create(
+        Id,
+        FirstName.Value,
+        LastName.Value,
+        Age.Value,
+        Email.Value,
+        Avatar.Value,
+        PasswordHash.Value).Value;
+
     public static readonly Guid Id = 
         Guid.NewGuid();
 
@@ -26,7 +35,4 @@ internal static class UserData
     public static readonly PasswordHash PasswordHash =
         PasswordHash.Create("janmors123").Value;
 
-    public static readonly Role Role =
-        Role.Registered;
-    
 }
