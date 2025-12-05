@@ -12,6 +12,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.9" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageReference Include="Serilog.Sinks.Seq" Version="9.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SpendWise.Application\SpendWise.Application.csproj" />
     <ProjectReference Include="..\SpendWise.Domain\SpendWise.Domain.csproj" />
     <ProjectReference Include="..\SpendWise.Infrastructure\SpendWise.Infrastructure.csproj" />
     <ProjectReference Include="..\SpendWise.SharedKernel\SpendWise.SharedKernel.csproj" />
