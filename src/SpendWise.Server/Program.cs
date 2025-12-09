@@ -5,6 +5,9 @@ using SpendWise.Server.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.UseSerilog((context, loggerConfig) =>
+    loggerConfig.ReadFrom.Configuration(context.Configuration));
+
 builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
@@ -28,11 +31,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseSerilogRequestLogging();
+
 app.UseRequestContextLogging();
 
 app.UseSerilogRequestLogging();
 
 app.UseCustomExceptionHandler();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
