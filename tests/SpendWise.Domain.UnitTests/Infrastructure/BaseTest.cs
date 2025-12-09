@@ -14,7 +14,7 @@ public abstract class BaseTest
             throw new Exception($"{typeof(T).Name} was not published");
         }
 
-        entity.ClearDomainEvent();
+        entity.ClearDomainEvents();
 
         return domainEvents;
     }
