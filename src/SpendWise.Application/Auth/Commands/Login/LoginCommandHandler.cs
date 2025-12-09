@@ -7,6 +7,7 @@ using SpendWise.Domain.Users.ValueObjects;
 using SpendWise.SharedKernel;
 using SpendWise.SharedKernel.ErrorHandling;
 using SpendWise.SharedKernel.Mediator.Command;
+using System.Net.Mail;
 
 namespace SpendWise.Application.Auth.Commands.Login;
 
@@ -32,10 +33,13 @@ public sealed class LoginCommandHandler
         CancellationToken cancellationToken)
     {
         var emailResult = Email.Create(request.Email);
-        if (emailResult is null)
+        if (emailResult.IsFailure)
             return Result.Failure<AuthResponse>(emailResult.Error);
 
-        var user = await _userRepository.GetByEmailAsync(emailResult.Value, cancellationToken);
+        var user = await _userRepository.GetByEmailAsync(
+            emailResult.Value,
+            cancellationToken);
+
         if (user is null)
             return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
 
@@ -46,8 +50,8 @@ public sealed class LoginCommandHandler
         var refreshToken = _jwtProvider.GenerateRefreshToken();
 
         var refreshTokenEntity = new RefreshToken(
-            user.Id, 
-            refreshToken, 
+            user.Id,
+            refreshToken,
             DateTime.UtcNow.AddDays(7));
 
         user.AddRefreshToken(refreshTokenEntity);

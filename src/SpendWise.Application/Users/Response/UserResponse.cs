@@ -26,9 +26,12 @@ public sealed class UserResponse
         {
             Id = user.Id,
             FullName = $"{user.FirstName.Value} {user.LastName.Value}",
-            Role = user.Role.ToString(),
+            Age = user.Age.Value,   
+            Role = user.Roles.FirstOrDefault()?.Name,
             Email = user.Email?.Value,
-            Avatar = user.Avatar?.Value
+            Avatar = user.Avatar?.Value,
+            UpdatedAt = user.UpdateAt
         };
     }
+
 }

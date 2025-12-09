@@ -30,7 +30,7 @@ public sealed class RegisterCommandHandler
         RegisterCommand request, 
         CancellationToken cancellationToken)
     {
-        var passwordHash = PasswordHash.Create(request.Password);
+        var passwordHash = PasswordHash.FromPlainText(request.Password);
 
         var userResult = User.Create(
             Guid.NewGuid(),
@@ -39,7 +39,7 @@ public sealed class RegisterCommandHandler
             request.Age,
             request.Email,
             null,
-            request.Password);
+            passwordHash.Value);
 
         if (userResult.IsFailure)
             return Result.Failure<UserResponse>(userResult.Error);
