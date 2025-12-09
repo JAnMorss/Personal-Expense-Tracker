@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Asp.Versioning;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SpendWise.Application.Abstractions;
@@ -19,6 +20,8 @@ public static class DependencyInjection
         AddPersistence(services, configuration);
 
         AddAuthentication(services, configuration);
+
+        AddApiVersioning(services);
 
         return services;
     }
@@ -44,5 +47,23 @@ public static class DependencyInjection
         services.AddJwtAuthentication(configuration);
 
         services.AddScoped<IJwtProvider, JwtProvider>();
+    }
+
+    private static void AddApiVersioning(IServiceCollection services)
+    {
+        services
+            .AddApiVersioning(static options =>
+            {
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.ReportApiVersions = true;
+                options.ApiVersionReader = new UrlSegmentApiVersionReader();
+            })
+            .AddMvc()
+            .AddApiExplorer(options =>
+            {
+                options.GroupNameFormat = "'v'V";
+                options.SubstituteApiVersionInUrl = true;
+            });
     }
 }
