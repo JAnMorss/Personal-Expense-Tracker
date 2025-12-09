@@ -37,7 +37,6 @@ public sealed class User : BaseEntity
     public Age Age { get; private set; }
     public Email Email { get; private set; } = null!;
     public PasswordHash PasswordHash { get; private set; } = null!;
-    public Role Role { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdateAt { get; private set; }
 

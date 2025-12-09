@@ -14,7 +14,7 @@ public sealed class Age : ValueObject
 
     public static Result<Age> Create(int age)
     {
-        if (age < 0 && age > 100)
+        if (age < 0 || age > 100)
         {
             return Result.Failure<Age>(new Error(
                 "Age.Invalid",
