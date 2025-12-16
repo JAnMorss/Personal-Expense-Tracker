@@ -48,4 +48,10 @@ public static class UserErrors
         "User.InvalidPassword",
         "The provided password does not meet the required criteria.");
 
+    public static readonly Error NotAnAdmin = new(
+        "User.NotAnAdmin",
+        "The user does not have the Admin role."
+    );
+
+
 }

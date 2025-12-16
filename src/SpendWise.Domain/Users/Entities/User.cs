@@ -1,4 +1,5 @@
-﻿using SpendWise.Domain.Users.Events;
+﻿using SpendWise.Domain.Users.Errors;
+using SpendWise.Domain.Users.Events;
 using SpendWise.Domain.Users.ValueObjects;
 using SpendWise.SharedKernel.Domain.Entities;
 using SpendWise.SharedKernel.ErrorHandling;
@@ -16,7 +17,7 @@ public sealed class User : BaseEntity
         Guid id,
         FirstName firstName,
         LastName lastName,
-        Age age,
+        Age? age,
         Email email,
         PasswordHash passwordHash,
         Avatar? avatar) : base(id)
@@ -34,7 +35,7 @@ public sealed class User : BaseEntity
     public FirstName FirstName { get; private set; } = null!;
     public LastName LastName { get; private set; } = null!;
     public Avatar? Avatar { get; private set; }
-    public Age Age { get; private set; }
+    public Age? Age { get; private set; }
     public Email Email { get; private set; } = null!;
     public PasswordHash PasswordHash { get; private set; } = null!;
     public DateTime CreatedAt { get; private set; }
@@ -143,6 +144,30 @@ public sealed class User : BaseEntity
         RaiseDomainEvent(new UserAvatarUpdatedDomainEvent(Id));
 
         return Result.Success(avatar);
+    }
+
+    public Result PromoteToAdmin()
+    {
+        if ( _roles.Any(r => r == Role.Admin)) 
+            return Result.Failure(UserErrors.AlreadyAdmin);
+
+        _roles.Add(Role.Admin);
+
+        RaiseDomainEvent(new UserPromotedToAdminDomainEvent(Id));
+        return Result.Success();
+    }
+
+    public Result DemoteFromAdmin()
+    {
+        var adminRole = _roles.FirstOrDefault(r => r == Role.Admin);
+
+        if (adminRole is null) 
+            return Result.Failure(UserErrors.NotAnAdmin);
+
+        _roles.Remove(adminRole);
+
+        RaiseDomainEvent(new UserDemotedFromAdminDomainEvent(Id));
+        return Result.Success();
     }
 
     public void AddRefreshToken(RefreshToken refreshToken)
