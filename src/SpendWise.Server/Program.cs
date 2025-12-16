@@ -1,6 +1,7 @@
 using Serilog;
-using SpendWise.Infrastructure;
 using SpendWise.Application;
+using SpendWise.Infrastructure;
+using SpendWise.Infrastructure.Seeding;
 using SpendWise.Server.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +29,11 @@ if (app.Environment.IsDevelopment())
 
     app.ApplyMigrations();
 }
+
+//using (var scope = app.Services.CreateScope())
+//{
+//    await DataSeeder.SeedAsync(scope.ServiceProvider);
+//}
 
 app.UseHttpsRedirection();
 
