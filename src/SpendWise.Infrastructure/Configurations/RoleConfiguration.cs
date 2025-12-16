@@ -19,7 +19,7 @@ internal sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
             .WithMany(role => role.Roles)
             .UsingEntity(r => r.ToTable("UserRoles"));
 
-       builder.HasData(
+        builder.HasData(
             new Role(Role.Registered.Id, Role.Registered.Name),
             new Role(Role.Admin.Id, Role.Admin.Name)
         );

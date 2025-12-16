@@ -17,6 +17,8 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
 
     public DbSet<User> Users { get; set; }
 
+    public DbSet<Role> Roles { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

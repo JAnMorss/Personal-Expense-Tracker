@@ -7,7 +7,9 @@ using SpendWise.Domain.Users.Interface;
 using SpendWise.Infrastructure.Auth;
 using SpendWise.Infrastructure.Auth.Extensions;
 using SpendWise.Infrastructure.Repositories;
+using SpendWise.Infrastructure.Seeding;
 using SpendWise.SharedKernel;
+using System.Threading.Tasks;
 
 namespace SpendWise.Infrastructure;
 
@@ -66,4 +68,5 @@ public static class DependencyInjection
                 options.SubstituteApiVersionInUrl = true;
             });
     }
+
 }
