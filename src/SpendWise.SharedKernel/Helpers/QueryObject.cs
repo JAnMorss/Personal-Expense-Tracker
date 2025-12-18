@@ -2,6 +2,7 @@
 
 public class QueryObject
 {
+    public string? Search { get; set; } = null;
     public string? SortBy { get; set; } = null;
 
     public bool Descending { get; set; } = false;
