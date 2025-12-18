@@ -43,10 +43,13 @@ internal abstract class Repository<T> : QueryHooks<T>, IRepository<T> where T : 
         return false;
     }
 
-    public virtual async Task<IEnumerable<T>> GetAllAsync(QueryObject queryObject, CancellationToken cancellationToken = default)
+    public virtual async Task<IEnumerable<T>> GetAllAsync(
+        QueryObject queryObject,
+        Guid? userId = null,
+        CancellationToken cancellationToken = default)
     {
         var query = BuildQuery(_context, queryObject);  
-        query = ApplyFilters(query, queryObject);          
+        query = ApplyFilters(query, queryObject, userId);          
         query = ApplySorting(query, queryObject);         
 
         int skip = (queryObject.Page - 1) * queryObject.PageSize;
@@ -57,12 +60,14 @@ internal abstract class Repository<T> : QueryHooks<T>, IRepository<T> where T : 
             .ToListAsync(cancellationToken);
     }
 
+
     public virtual async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _context
             .Set<T>()
-            .FirstOrDefaultAsync(cancellationToken);
+            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
+
 
     public virtual Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
     {

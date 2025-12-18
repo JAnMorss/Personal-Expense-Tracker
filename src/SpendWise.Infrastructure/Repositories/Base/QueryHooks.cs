@@ -15,10 +15,12 @@ public abstract class QueryHooks<T> where T : BaseEntity
 
     protected virtual IQueryable<T> ApplyFilters(
         IQueryable<T> query, 
-        QueryObject queryObject)
+        QueryObject queryObject,
+        Guid? userId = null)
     {
         return query;
     }
+
     protected virtual IQueryable<T> ApplySorting(
         IQueryable<T> query, 
         QueryObject queryObject)
