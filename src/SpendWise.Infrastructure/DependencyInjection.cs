@@ -3,13 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SpendWise.Application.Abstractions;
+using SpendWise.Domain.Categories.Interface;
 using SpendWise.Domain.Users.Interface;
 using SpendWise.Infrastructure.Auth;
 using SpendWise.Infrastructure.Auth.Extensions;
 using SpendWise.Infrastructure.Repositories;
-using SpendWise.Infrastructure.Seeding;
 using SpendWise.SharedKernel;
-using System.Threading.Tasks;
 
 namespace SpendWise.Infrastructure;
 
@@ -40,6 +39,7 @@ public static class DependencyInjection
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
     }
 
     private static void AddAuthentication(IServiceCollection services, IConfiguration configuration)
