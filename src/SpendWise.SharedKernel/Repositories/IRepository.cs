@@ -5,7 +5,7 @@ namespace SpendWise.SharedKernel.Repositories;
 
 public interface IRepository<T> where T : BaseEntity
 {
-    Task<IEnumerable<T>> GetAllAsync(QueryObject query, CancellationToken cancellationToken = default);
+    Task<IEnumerable<T>> GetAllAsync(QueryObject query, Guid? userId, CancellationToken cancellationToken = default);
 
     Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
