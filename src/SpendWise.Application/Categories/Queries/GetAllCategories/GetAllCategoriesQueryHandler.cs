@@ -46,7 +46,7 @@ public sealed class GetAllCategoriesQueryHandler : IQueryHandler<GetAllCategorie
             .Select(category => CategoryResponse.FromEntity(category, user))
             .ToList();
 
-        var totalCount = await _categoryRepository.CountAsync(cancellationToken);
+        var totalCount = await _categoryRepository.CountByUserIdAsync(request.userId, cancellationToken);
 
         var result = new PaginatedResult<CategoryResponse>(
             mapped,
