@@ -3,6 +3,6 @@ using SpendWise.SharedKernel.Repositories;
 
 namespace SpendWise.Domain.Categories.Interface;
 
-public interface ICategoryRepository : IRepository<Category>
+public interface ICategoryRepository : IUserOwnedRepository<Category>
 {
 }

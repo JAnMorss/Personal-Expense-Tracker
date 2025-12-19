@@ -2,10 +2,11 @@
 using SpendWise.Domain.Categories.ValueObjects;
 using SpendWise.SharedKernel.Domain.Entities;
 using SpendWise.SharedKernel.ErrorHandling;
+using SpendWise.SharedKernel.Repositories;
 
 namespace SpendWise.Domain.Categories.Entities;
 
-public sealed class Category : BaseEntity
+public sealed class Category : BaseEntity, IUserOwned
 {
     private Category() { }
 
