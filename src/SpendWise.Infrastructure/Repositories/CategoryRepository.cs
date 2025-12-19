@@ -5,7 +5,7 @@ using SpendWise.SharedKernel.Helpers;
 
 namespace SpendWise.Infrastructure.Repositories;
 
-internal sealed class CategoryRepository : Repository<Category>, ICategoryRepository
+internal sealed class CategoryRepository : UserOwnedRepository<Category>, ICategoryRepository
 {
     public CategoryRepository(ApplicationDbContext context) 
         : base(context)
