@@ -19,4 +19,13 @@ public static class ResultHelper
 
         return result.Value;
     }
+
+    public static T CreateOrFail<T>(Func<decimal, Result<T>> factory, decimal value)
+    {
+        var result = factory(value);
+        if (result.IsFailure)
+            throw new InvalidOperationException(result.Error.ToString());
+
+        return result.Value;
+    }
 }
