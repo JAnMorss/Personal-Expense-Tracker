@@ -44,9 +44,7 @@ namespace SpendWise.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("CreatedByUserId")
                         .HasColumnType("uniqueidentifier");
@@ -59,6 +57,38 @@ namespace SpendWise.Infrastructure.Migrations
                     b.HasIndex("CreatedByUserId");
 
                     b.ToTable("Categories", (string)null);
+                });
+
+            modelBuilder.Entity("SpendWise.Domain.Expenses.Entities.Expense", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("Date");
+
+                    b.ToTable("Expenses", (string)null);
                 });
 
             modelBuilder.Entity("SpendWise.Domain.Users.Entities.RefreshToken", b =>
@@ -174,8 +204,11 @@ namespace SpendWise.Infrastructure.Migrations
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("Value")
+                                .IsRequired()
+                                .ValueGeneratedOnAdd()
                                 .HasMaxLength(20)
                                 .HasColumnType("nvarchar(20)")
+                                .HasDefaultValue("")
                                 .HasColumnName("Icon");
 
                             b1.HasKey("CategoryId");
@@ -190,6 +223,69 @@ namespace SpendWise.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Icon");
+                });
+
+            modelBuilder.Entity("SpendWise.Domain.Expenses.Entities.Expense", b =>
+                {
+                    b.HasOne("SpendWise.Domain.Categories.Entities.Category", "Category")
+                        .WithMany("Expenses")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SpendWise.Domain.Users.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("SpendWise.Domain.Expenses.ValueObjects.Amount", "Amount", b1 =>
+                        {
+                            b1.Property<Guid>("ExpenseId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal>("Value")
+                                .HasPrecision(18, 2)
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("Amount");
+
+                            b1.HasKey("ExpenseId");
+
+                            b1.ToTable("Expenses");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ExpenseId");
+                        });
+
+                    b.OwnsOne("SpendWise.Domain.Expenses.ValueObjects.Description", "Description", b1 =>
+                        {
+                            b1.Property<Guid>("ExpenseId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .ValueGeneratedOnAdd()
+                                .HasMaxLength(500)
+                                .HasColumnType("nvarchar(500)")
+                                .HasDefaultValue("")
+                                .HasColumnName("Description");
+
+                            b1.HasKey("ExpenseId");
+
+                            b1.ToTable("Expenses");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ExpenseId");
+                        });
+
+                    b.Navigation("Amount")
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Description");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SpendWise.Domain.Users.Entities.RefreshToken", b =>
@@ -335,6 +431,11 @@ namespace SpendWise.Infrastructure.Migrations
 
                     b.Navigation("PasswordHash")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("SpendWise.Domain.Categories.Entities.Category", b =>
+                {
+                    b.Navigation("Expenses");
                 });
 
             modelBuilder.Entity("SpendWise.Domain.Users.Entities.User", b =>
