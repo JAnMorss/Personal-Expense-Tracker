@@ -1,5 +1,7 @@
 ﻿using SpendWise.Domain.Categories.Events;
 using SpendWise.Domain.Categories.ValueObjects;
+using SpendWise.Domain.Expenses.Entities;
+using SpendWise.Domain.Expenses.Errors;
 using SpendWise.SharedKernel.Domain.Entities;
 using SpendWise.SharedKernel.ErrorHandling;
 using SpendWise.SharedKernel.Repositories;
@@ -8,6 +10,8 @@ namespace SpendWise.Domain.Categories.Entities;
 
 public sealed class Category : BaseEntity, IUserOwned
 {
+    private readonly List<Expense> _expenses = new();
+
     private Category() { }
 
     public Category(
@@ -32,6 +36,8 @@ public sealed class Category : BaseEntity, IUserOwned
     public DateTime CreatedAt { get; private set; }
 
     public DateTime? UpdatedAt { get; private set; }
+
+    public IReadOnlyCollection<Expense> Expenses => _expenses.AsReadOnly();
 
     public static Result<Category> Create(
         Guid id,
@@ -83,6 +89,18 @@ public sealed class Category : BaseEntity, IUserOwned
             UpdatedAt = DateTime.UtcNow;
             RaiseDomainEvent(new CategoryUpdatedDomainEvent(Id));
         }
+
+        return Result.Success(this);
+    }
+
+    public Result AddExpense(Expense expense)
+    {
+        if (expense.CategoryId != Id)
+            return Result.Failure<Expense>(ExpenseErrors.InvalidCategoryId);
+
+        _expenses.Add(expense);
+
+        RaiseDomainEvent(new ExpenseAddedToCategoryDomainEvent(Id, expense.Id));
 
         return Result.Success(this);
     }
