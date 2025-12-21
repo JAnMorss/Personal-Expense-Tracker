@@ -13,6 +13,16 @@ internal sealed class UserRepository : Repository<User>, IUserRepository
     {
     }
 
+    public override async Task<User?> GetByIdAsync(
+        Guid id, 
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Users
+            .Include(u => u.Roles)
+            .Include(u => u.RefreshTokens)
+            .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+    }
+
     public override async Task AddAsync(User user, CancellationToken cancellationToken = default)
     {
         foreach (var role in user.Roles)

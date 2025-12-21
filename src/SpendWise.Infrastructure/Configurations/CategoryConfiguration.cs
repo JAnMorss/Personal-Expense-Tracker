@@ -8,38 +8,40 @@ internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
 {
     public void Configure(EntityTypeBuilder<Category> builder)
     {
-        builder.ToTable("Categories"); 
+        builder.ToTable("Categories");
 
-        builder.HasKey(x => x.Id);
+        builder.HasKey(c => c.Id);
 
         builder.OwnsOne(c => c.CategoryName, cn =>
         {
-            cn.Property(c => c.Value)
-              .HasColumnName("CategoryName")  
-              .IsRequired()
-              .HasMaxLength(40);  
+            cn.Property(p => p.Value)
+                .HasColumnName("CategoryName")
+                .IsRequired()
+                .HasMaxLength(40);
         });
 
         builder.OwnsOne(c => c.Icon, icon =>
         {
-            icon.Property(i => i.Value)
+            icon.Property(p => p.Value)
                 .HasColumnName("Icon")
-                .HasMaxLength(20) 
-                .IsRequired(false);  
+                .HasMaxLength(20)
+                .HasDefaultValue(""); 
         });
 
-        // Primitive properties
+
         builder.Property(c => c.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()"); 
+            .IsRequired();
 
         builder.Property(c => c.UpdatedAt)
-            .IsRequired(false);  
+            .IsRequired(false);
 
         builder.Property(c => c.CreatedByUserId)
-            .IsRequired();  
+            .IsRequired();
 
         builder.HasIndex(c => c.CreatedByUserId);
+
+        builder.Metadata
+            .FindNavigation(nameof(Category.Expenses))!
+            .SetPropertyAccessMode(PropertyAccessMode.Field);
     }
 }
-

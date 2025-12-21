@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SpendWise.Domain.Categories.Entities;
+using SpendWise.Domain.Expenses.Entities;
 using SpendWise.Domain.Users.Entities;
 using SpendWise.SharedKernel;
 using SpendWise.SharedKernel.Domain.Entities;
@@ -18,6 +19,7 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
 
     public DbSet<User> Users { get; set; }
     public DbSet<Category> Categories { get; set; }
+    public DbSet<Expense> Expenses { get; set; }
     public DbSet<Role> Roles { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

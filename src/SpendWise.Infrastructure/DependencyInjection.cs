@@ -1,14 +1,18 @@
 ﻿using Asp.Versioning;
+using Azure.Storage.Blobs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SpendWise.Application.Abstractions;
 using SpendWise.Domain.Categories.Interface;
+using SpendWise.Domain.Expenses.Interface;
 using SpendWise.Domain.Users.Interface;
 using SpendWise.Infrastructure.Auth;
 using SpendWise.Infrastructure.Auth.Extensions;
 using SpendWise.Infrastructure.Repositories;
+using SpendWise.Infrastructure.Storage;
 using SpendWise.SharedKernel;
+using SpendWise.SharedKernel.Storage;
 
 namespace SpendWise.Infrastructure;
 
@@ -40,6 +44,10 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<IExpenseRepository, ExpenseRepository>();
+
+        services.AddScoped<IAvatarBlobService, AvatarBlobService>();
+        services.AddScoped(_ => new BlobServiceClient(configuration.GetConnectionString("BlobStorage")));
     }
 
     private static void AddAuthentication(IServiceCollection services, IConfiguration configuration)
