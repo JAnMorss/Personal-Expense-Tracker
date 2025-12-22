@@ -12,47 +12,49 @@ internal sealed class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
 
         builder.HasKey(e => e.Id);
 
+        // Value Object mappings
         builder.OwnsOne(e => e.Amount, a =>
         {
-            a.Property(p => p.Value)
+            a.Property(x => x.Value)
              .HasColumnName("Amount")
              .IsRequired()
-             .HasPrecision(18, 2);
+             .HasColumnType("decimal(18,2)");
         });
 
         builder.OwnsOne(e => e.Description, d =>
         {
-            d.Property(p => p.Value)
+            d.Property(x => x.Value)
              .HasColumnName("Description")
-             .HasMaxLength(500)
-             .HasDefaultValue(""); 
+             .HasMaxLength(500);
         });
 
-
+        // Primitive properties
         builder.Property(e => e.Date)
-            .IsRequired();
+               .IsRequired();
 
         builder.Property(e => e.CreatedAt)
-            .IsRequired();
+               .IsRequired()
+               .HasDefaultValueSql("GETUTCDATE()");
+
+        builder.Property(e => e.UpdatedAt)
+               .IsRequired()
+               .HasDefaultValueSql("GETUTCDATE()");
 
         builder.Property(e => e.CreatedByUserId)
-            .IsRequired();
+               .IsRequired();
 
         builder.Property(e => e.CategoryId)
-            .IsRequired();
+               .IsRequired();
 
+        // Relationships
         builder.HasOne(e => e.Category)
-            .WithMany(c => c.Expenses)
-            .HasForeignKey(e => e.CategoryId)
-            .OnDelete(DeleteBehavior.Restrict);
+               .WithMany(c => c.Expenses)
+               .HasForeignKey(e => e.CategoryId)
+               .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(e => e.User)
-            .WithMany()
-            .HasForeignKey(e => e.CreatedByUserId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasIndex(e => e.CreatedByUserId);
-        builder.HasIndex(e => e.CategoryId);
-        builder.HasIndex(e => e.Date);
+               .WithMany()
+               .HasForeignKey(e => e.CreatedByUserId)
+               .OnDelete(DeleteBehavior.Restrict);
     }
 }

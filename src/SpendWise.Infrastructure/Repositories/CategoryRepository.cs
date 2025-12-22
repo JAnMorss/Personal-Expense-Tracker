@@ -1,5 +1,7 @@
-﻿using SpendWise.Domain.Categories.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using SpendWise.Domain.Categories.Entities;
 using SpendWise.Domain.Categories.Interface;
+using SpendWise.Domain.Expenses.Entities;
 using SpendWise.Infrastructure.Repositories.Base;
 using SpendWise.SharedKernel.Helpers;
 
@@ -10,6 +12,36 @@ internal sealed class CategoryRepository : UserOwnedRepository<Category>, ICateg
     public CategoryRepository(ApplicationDbContext context) 
         : base(context)
     {
+    }
+
+    public override async Task<IEnumerable<Category>> GetAllAsync(
+        QueryObject queryObject,
+        Guid? userId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = BuildQuery(_context, queryObject);
+        query = ApplyFilters(query, queryObject, userId);
+        query = ApplySorting(query, queryObject);
+
+        int skip = (queryObject.Page - 1) * queryObject.PageSize;
+
+        return await query
+            .Include(e => e.Expenses)
+            .Include(e => e.User)
+            .Skip(skip)
+            .Take(queryObject.PageSize)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<Category?> GetByIdAndUserIdAsync(
+       Guid id,
+       Guid userId,
+       CancellationToken cancellationToken = default)
+    {
+        return await _context.Categories
+            .Include(e => e.Expenses)
+            .Include(e => e.User)
+            .FirstOrDefaultAsync(e => e.Id == id && e.CreatedByUserId == userId, cancellationToken);
     }
 
     protected override IQueryable<Category> ApplyFilters(
@@ -52,4 +84,5 @@ internal sealed class CategoryRepository : UserOwnedRepository<Category>, ICateg
 
         return query;
     }
+
 }
