@@ -1,8 +1,6 @@
 ﻿using SpendWise.Application.Categories.Response;
 using SpendWise.Domain.Categories.Errors;
 using SpendWise.Domain.Categories.Interface;
-using SpendWise.Domain.Users.Errors;
-using SpendWise.Domain.Users.Interface;
 using SpendWise.SharedKernel.ErrorHandling;
 using SpendWise.SharedKernel.Helpers;
 using SpendWise.SharedKernel.Mediator.Query;
@@ -13,14 +11,10 @@ namespace SpendWise.Application.Categories.Queries.GetAllCategories;
 public sealed class GetAllCategoriesQueryHandler : IQueryHandler<GetAllCategoriesQuery, PaginatedResult<CategoryResponse>>
 {
     private readonly ICategoryRepository _categoryRepository;
-    private readonly IUserRepository _userRepository;
 
-    public GetAllCategoriesQueryHandler(
-        ICategoryRepository categoryRepository, 
-        IUserRepository userRepository)
+    public GetAllCategoriesQueryHandler(ICategoryRepository categoryRepository)
     {
         _categoryRepository = categoryRepository;
-        _userRepository = userRepository;
     }
 
     public async Task<Result<PaginatedResult<CategoryResponse>>> Handle(
@@ -38,12 +32,8 @@ public sealed class GetAllCategoriesQueryHandler : IQueryHandler<GetAllCategorie
         if (categories is null || !categories.Any())
             return Result.Failure<PaginatedResult<CategoryResponse>>(CategoryErrors.EmptyCategory);
 
-        var user = await _userRepository.GetByIdAsync(request.userId, cancellationToken);
-        if (user is null)
-            return Result.Failure<PaginatedResult<CategoryResponse>>(UserErrors.NotFound);
-
         var mapped = categories
-            .Select(category => CategoryResponse.FromEntity(category, user))
+            .Select(category => CategoryResponse.FromEntity(category))
             .ToList();
 
         var totalCount = await _categoryRepository.CountByUserIdAsync(request.userId, cancellationToken);

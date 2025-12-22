@@ -46,6 +46,6 @@ public sealed class CreateCategoryCommandHandler : ICommandHandler<CreateCategor
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(CategoryResponse.FromEntity(category, user));
+        return Result.Success(CategoryResponse.FromEntity(category));
     }
 }
