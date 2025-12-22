@@ -11,4 +11,8 @@ public static class ExpenseErrors
     public static readonly Error InvalidCategoryId = new(
         "Expense.InvalidCategoryId",
         "The specified category ID is invalid for this expense.");
+
+    public static readonly Error EmptyExpense = new(
+        "Expense.EmptyExpense",
+        "No expenses found for the specified criteria.");
 }

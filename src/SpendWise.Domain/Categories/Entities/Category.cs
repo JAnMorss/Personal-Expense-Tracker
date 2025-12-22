@@ -2,6 +2,7 @@
 using SpendWise.Domain.Categories.ValueObjects;
 using SpendWise.Domain.Expenses.Entities;
 using SpendWise.Domain.Expenses.Errors;
+using SpendWise.Domain.Users.Entities;
 using SpendWise.SharedKernel.Domain.Entities;
 using SpendWise.SharedKernel.ErrorHandling;
 using SpendWise.SharedKernel.Repositories;
@@ -36,6 +37,8 @@ public sealed class Category : BaseEntity, IUserOwned
     public DateTime CreatedAt { get; private set; }
 
     public DateTime? UpdatedAt { get; private set; }
+
+    public User? User { get; private set; }
 
     public IReadOnlyCollection<Expense> Expenses => _expenses.AsReadOnly();
 
