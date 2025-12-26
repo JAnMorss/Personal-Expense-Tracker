@@ -12,8 +12,8 @@ using SpendWise.Infrastructure;
 namespace SpendWise.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251222083137_AddCategoryAndExpenseConfigurations")]
-    partial class AddCategoryAndExpenseConfigurations
+    [Migration("20251226084131_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -98,6 +98,40 @@ namespace SpendWise.Infrastructure.Migrations
                     b.ToTable("Expenses", (string)null);
                 });
 
+            modelBuilder.Entity("SpendWise.Domain.Users.Entities.Permission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("PermissionId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RoleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PermissionId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("permissions", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "users:read"
+                        });
+                });
+
             modelBuilder.Entity("SpendWise.Domain.Users.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -150,6 +184,26 @@ namespace SpendWise.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("SpendWise.Domain.Users.Entities.RolePermission", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RoleId", "PermissionId");
+
+                    b.ToTable("role_permissions", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 1
+                        });
+                });
+
             modelBuilder.Entity("SpendWise.Domain.Users.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -161,10 +215,18 @@ namespace SpendWise.Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
+                    b.Property<string>("IdentityId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<DateTime?>("UpdateAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IdentityId")
+                        .IsUnique();
 
                     b.ToTable("Users", (string)null);
                 });
@@ -296,6 +358,17 @@ namespace SpendWise.Infrastructure.Migrations
                     b.Navigation("Description");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SpendWise.Domain.Users.Entities.Permission", b =>
+                {
+                    b.HasOne("SpendWise.Domain.Users.Entities.Permission", null)
+                        .WithMany("Permissions")
+                        .HasForeignKey("PermissionId");
+
+                    b.HasOne("SpendWise.Domain.Users.Entities.Role", null)
+                        .WithMany("Permissions")
+                        .HasForeignKey("RoleId");
                 });
 
             modelBuilder.Entity("SpendWise.Domain.Users.Entities.RefreshToken", b =>
@@ -446,6 +519,16 @@ namespace SpendWise.Infrastructure.Migrations
             modelBuilder.Entity("SpendWise.Domain.Categories.Entities.Category", b =>
                 {
                     b.Navigation("Expenses");
+                });
+
+            modelBuilder.Entity("SpendWise.Domain.Users.Entities.Permission", b =>
+                {
+                    b.Navigation("Permissions");
+                });
+
+            modelBuilder.Entity("SpendWise.Domain.Users.Entities.Role", b =>
+                {
+                    b.Navigation("Permissions");
                 });
 
             modelBuilder.Entity("SpendWise.Domain.Users.Entities.User", b =>

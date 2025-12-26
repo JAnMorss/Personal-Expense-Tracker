@@ -6,7 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
 
-namespace SpendWise.Infrastructure.Auth.Extensions;
+namespace SpendWise.Infrastructure.Authentication.Extensions;
 
 public static class AuthenticationExtensions
 {

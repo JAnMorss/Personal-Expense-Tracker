@@ -12,8 +12,8 @@ using SpendWise.Infrastructure;
 namespace SpendWise.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251221112804_AddExpenseEntityMigration")]
-    partial class AddExpenseEntityMigration
+    [Migration("20251226101531_NameOfMigration")]
+    partial class NameOfMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -47,7 +47,9 @@ namespace SpendWise.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<Guid>("CreatedByUserId")
                         .HasColumnType("uniqueidentifier");
@@ -72,7 +74,9 @@ namespace SpendWise.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<Guid>("CreatedByUserId")
                         .HasColumnType("uniqueidentifier");
@@ -81,7 +85,9 @@ namespace SpendWise.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.HasKey("Id");
 
@@ -89,9 +95,36 @@ namespace SpendWise.Infrastructure.Migrations
 
                     b.HasIndex("CreatedByUserId");
 
-                    b.HasIndex("Date");
-
                     b.ToTable("Expenses", (string)null);
+                });
+
+            modelBuilder.Entity("SpendWise.Domain.Users.Entities.Permission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("RoleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("permissions", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "users:read"
+                        });
                 });
 
             modelBuilder.Entity("SpendWise.Domain.Users.Entities.RefreshToken", b =>
@@ -146,6 +179,26 @@ namespace SpendWise.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("SpendWise.Domain.Users.Entities.RolePermission", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RoleId", "PermissionId");
+
+                    b.ToTable("role_permissions", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 1
+                        });
+                });
+
             modelBuilder.Entity("SpendWise.Domain.Users.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -157,10 +210,18 @@ namespace SpendWise.Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
+                    b.Property<string>("IdentityId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<DateTime?>("UpdateAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IdentityId")
+                        .IsUnique();
 
                     b.ToTable("Users", (string)null);
                 });
@@ -182,6 +243,12 @@ namespace SpendWise.Infrastructure.Migrations
 
             modelBuilder.Entity("SpendWise.Domain.Categories.Entities.Category", b =>
                 {
+                    b.HasOne("SpendWise.Domain.Users.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.OwnsOne("SpendWise.Domain.Categories.ValueObjects.CategoryName", "CategoryName", b1 =>
                         {
                             b1.Property<Guid>("CategoryId")
@@ -189,8 +256,8 @@ namespace SpendWise.Infrastructure.Migrations
 
                             b1.Property<string>("Value")
                                 .IsRequired()
-                                .HasMaxLength(40)
-                                .HasColumnType("nvarchar(40)")
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)")
                                 .HasColumnName("CategoryName");
 
                             b1.HasKey("CategoryId");
@@ -207,8 +274,9 @@ namespace SpendWise.Infrastructure.Migrations
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("Value")
-                                .HasMaxLength(20)
-                                .HasColumnType("nvarchar(20)")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)")
                                 .HasColumnName("Icon");
 
                             b1.HasKey("CategoryId");
@@ -223,6 +291,8 @@ namespace SpendWise.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Icon");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SpendWise.Domain.Expenses.Entities.Expense", b =>
@@ -230,13 +300,13 @@ namespace SpendWise.Infrastructure.Migrations
                     b.HasOne("SpendWise.Domain.Categories.Entities.Category", "Category")
                         .WithMany("Expenses")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("SpendWise.Domain.Users.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.OwnsOne("SpendWise.Domain.Expenses.ValueObjects.Amount", "Amount", b1 =>
@@ -245,7 +315,6 @@ namespace SpendWise.Infrastructure.Migrations
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<decimal>("Value")
-                                .HasPrecision(18, 2)
                                 .HasColumnType("decimal(18,2)")
                                 .HasColumnName("Amount");
 
@@ -263,6 +332,7 @@ namespace SpendWise.Infrastructure.Migrations
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("Value")
+                                .IsRequired()
                                 .HasMaxLength(500)
                                 .HasColumnType("nvarchar(500)")
                                 .HasColumnName("Description");
@@ -283,6 +353,13 @@ namespace SpendWise.Infrastructure.Migrations
                     b.Navigation("Description");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SpendWise.Domain.Users.Entities.Permission", b =>
+                {
+                    b.HasOne("SpendWise.Domain.Users.Entities.Role", null)
+                        .WithMany("Permissions")
+                        .HasForeignKey("RoleId");
                 });
 
             modelBuilder.Entity("SpendWise.Domain.Users.Entities.RefreshToken", b =>
@@ -433,6 +510,11 @@ namespace SpendWise.Infrastructure.Migrations
             modelBuilder.Entity("SpendWise.Domain.Categories.Entities.Category", b =>
                 {
                     b.Navigation("Expenses");
+                });
+
+            modelBuilder.Entity("SpendWise.Domain.Users.Entities.Role", b =>
+                {
+                    b.Navigation("Permissions");
                 });
 
             modelBuilder.Entity("SpendWise.Domain.Users.Entities.User", b =>

@@ -1,4 +1,4 @@
-﻿namespace SpendWise.Infrastructure.Auth;
+﻿namespace SpendWise.Infrastructure.Authentication;
 
 public class JwtOptions
 {

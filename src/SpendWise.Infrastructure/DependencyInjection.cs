@@ -7,8 +7,8 @@ using SpendWise.Application.Abstractions;
 using SpendWise.Domain.Categories.Interface;
 using SpendWise.Domain.Expenses.Interface;
 using SpendWise.Domain.Users.Interface;
-using SpendWise.Infrastructure.Auth;
-using SpendWise.Infrastructure.Auth.Extensions;
+using SpendWise.Infrastructure.Authentication;
+using SpendWise.Infrastructure.Authentication.Extensions;
 using SpendWise.Infrastructure.Repositories;
 using SpendWise.Infrastructure.Storage;
 using SpendWise.SharedKernel;
@@ -58,7 +58,6 @@ public static class DependencyInjection
 
         services.AddScoped<IJwtProvider, JwtProvider>();
     }
-
     private static void AddApiVersioning(IServiceCollection services)
     {
         services

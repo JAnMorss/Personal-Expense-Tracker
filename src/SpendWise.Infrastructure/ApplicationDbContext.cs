@@ -21,11 +21,11 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
     public DbSet<Category> Categories { get; set; }
     public DbSet<Expense> Expenses { get; set; }
     public DbSet<Role> Roles { get; set; } = null!;
+    public DbSet<RolePermission> RolePermissions { get; set; } = null!;
+    public DbSet<Permission> Permissions { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
-
         modelBuilder.Entity<User>()
             .HasMany(u => u.RefreshTokens)
             .WithOne(rt => rt.User)
@@ -33,6 +33,8 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+
+        base.OnModelCreating(modelBuilder);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
