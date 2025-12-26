@@ -6,7 +6,6 @@ using SpendWise.Application.Auth.Commands.Login;
 using SpendWise.Application.Auth.Commands.Register;
 using SpendWise.Application.Auth.Response;
 using SpendWise.Application.Users.Response;
-using SpendWise.Domain.Users.Entities;
 using SpendWise.Server.Abstractions;
 using SpendWise.Server.Controllers.Auth.Requests;
 
@@ -23,7 +22,6 @@ public class AuthController : ApiController
     }
 
     [HttpPost("register")]
-    [AllowAnonymous]
     public async Task<IActionResult> Register(
         [FromBody] RegisterRequest request,
         CancellationToken cancellationToken)
@@ -45,7 +43,6 @@ public class AuthController : ApiController
     }
 
     [HttpPost("login")]
-    [AllowAnonymous]
     public async Task<IActionResult> Login(
         [FromBody] LoginRequest request,
         CancellationToken cancellationToken)

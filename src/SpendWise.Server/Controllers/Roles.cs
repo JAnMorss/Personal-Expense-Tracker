@@ -1,6 +1,4 @@
-﻿using SpendWise.Domain.Users.Entities;
-
-namespace SpendWise.Server.Controllers;
+﻿namespace SpendWise.Server.Controllers;
 
 public static class Roles
 {
