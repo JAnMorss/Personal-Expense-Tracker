@@ -14,5 +14,5 @@ public static class ExpenseErrors
 
     public static readonly Error EmptyExpense = new(
         "Expense.EmptyExpense",
-        "No expenses found for the specified criteria.");
+        "Your expense list is empty. Please create a expense first.");
 }
