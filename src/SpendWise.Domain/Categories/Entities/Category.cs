@@ -45,45 +45,56 @@ public sealed class Category : BaseEntity, IUserOwned
     public static Result<Category> Create(
         Guid id,
         string categoryName,
-        string icon,
+        string? icon,
         Guid createdByUserId)
     {
-        var categoryNameResult = ResultHelper.CreateOrFail(CategoryName.Create, categoryName);
+        var categoryNameResult = CategoryName.Create(categoryName);
+        if (categoryNameResult.IsFailure) 
+            return Result.Failure<Category>(categoryNameResult.Error);
 
         Icon? iconValue = null;
         if (!string.IsNullOrWhiteSpace(icon))
         {
-            iconValue = ResultHelper.CreateOrFail(Icon.Create, icon);
+            var iconResult = Icon.Create(icon);
+            if (iconResult.IsFailure) 
+                return Result.Failure<Category>(iconResult.Error);
+
+            iconValue = iconResult.Value;
         }
 
         var category = new Category(
             id,
-            categoryNameResult,
+            categoryNameResult.Value,
             iconValue,
-            createdByUserId);
+            createdByUserId
+        );
 
         category.RaiseDomainEvent(new CategoryCreatedDomainEvent(category.Id));
 
         return Result.Success(category);
     }
 
-    public Result UpdateCategory(
-        string categoryName,
-        string? icon)
+    public Result<Category> UpdateCategory(string categoryName, string? icon)
     {
         bool isUpdated = false;
 
-        if (!string.IsNullOrWhiteSpace(categoryName) 
-            && categoryName != CategoryName.Value)
+        if (!string.IsNullOrWhiteSpace(categoryName) && categoryName != CategoryName.Value)
         {
-            CategoryName = ResultHelper.CreateOrFail(CategoryName.Create, categoryName);
+            var categoryNameResult = CategoryName.Create(categoryName);
+            if (categoryNameResult.IsFailure) 
+                return Result.Failure<Category>(categoryNameResult.Error);
+
+            CategoryName = categoryNameResult.Value;
             isUpdated = true;
         }
 
-        if (!string.IsNullOrWhiteSpace(icon) 
-            && icon != Icon?.Value)
+        if (!string.IsNullOrWhiteSpace(icon) && icon != Icon?.Value)
         {
-            Icon = ResultHelper.CreateOrFail(Icon.Create, icon);
+            var iconResult = Icon.Create(icon);
+            if (iconResult.IsFailure) 
+                return Result.Failure<Category>(iconResult.Error);
+
+            Icon = iconResult.Value;
             isUpdated = true;
         }
 
@@ -95,6 +106,7 @@ public sealed class Category : BaseEntity, IUserOwned
 
         return Result.Success(this);
     }
+
 
     public Result AddExpense(Expense expense)
     {

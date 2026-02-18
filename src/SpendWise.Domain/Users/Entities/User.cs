@@ -38,7 +38,6 @@ public sealed class User : BaseEntity
     public Age? Age { get; private set; }
     public Email Email { get; private set; } = null!;
     public PasswordHash PasswordHash { get; private set; } = null!;
-    public string IdentityId { get; private set; } = string.Empty;
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdateAt { get; private set; }
 
@@ -48,81 +47,102 @@ public sealed class User : BaseEntity
         => _roles.ToList();
 
     public static Result<User> Create(
-        Guid id,
-        string firstName,
-        string lastName,
-        int age,
-        string email,
-        string? avatar,
-        string passwordHash)
-     {
-        var firstNameResult = ResultHelper.CreateOrFail(FirstName.Create, firstName);
-        var lastNameResult = ResultHelper.CreateOrFail(LastName.Create, lastName);
-        var ageResult = ResultHelper.CreateOrFail(Age.Create, age);
-        var emailResult = ResultHelper.CreateOrFail(Email.Create, email);
-        var passwordHashResult = ResultHelper.CreateOrFail(PasswordHash.Create, passwordHash);
+    Guid id,
+    string firstName,
+    string lastName,
+    int age,
+    string email,
+    string? avatar,
+    string passwordHash)
+    {
+        var firstNameResult = FirstName.Create(firstName);
+        if (firstNameResult.IsFailure) 
+            return Result.Failure<User>(firstNameResult.Error);
+
+        var lastNameResult = LastName.Create(lastName);
+        if (lastNameResult.IsFailure) 
+            return Result.Failure<User>(lastNameResult.Error);
+
+        var ageResult = Age.Create(age);
+        if (ageResult.IsFailure) 
+            return Result.Failure<User>(ageResult.Error);
+
+        var emailResult = Email.Create(email);
+        if (emailResult.IsFailure) 
+            return Result.Failure<User>(emailResult.Error);
+
+        var passwordHashResult = PasswordHash.Create(passwordHash);
+        if (passwordHashResult.IsFailure) 
+            return Result.Failure<User>(passwordHashResult.Error);
 
         Avatar? avatarValue = null;
         if (!string.IsNullOrWhiteSpace(avatar))
         {
-            var avatarResult = ResultHelper.CreateOrFail(Avatar.Create, avatar);
+            var avatarResult = Avatar.Create(avatar);
+            if (avatarResult.IsFailure) 
+                return Result.Failure<User>(avatarResult.Error);
 
-            avatarValue = avatarResult;
+            avatarValue = avatarResult.Value;
         }
 
         var user = new User(
             id,
-            firstNameResult,
-            lastNameResult,
-            ageResult,
-            emailResult,
-            passwordHashResult,
-            avatarValue);
+            firstNameResult.Value,
+            lastNameResult.Value,
+            ageResult.Value,
+            emailResult.Value,
+            passwordHashResult.Value,
+            avatarValue
+        );
 
         user.RaiseDomainEvent(new UserCreatedDomainEvent(user.Id));
 
         user._roles.Add(Role.Registered);
 
         return Result.Success(user);
-     }
+    }
 
-    public Result<User> UpdateDetails(
-        string firstName,
-        string lastName,
-        int age,
-        string email)
+    public Result<User> UpdateDetails(string firstName, string lastName, int age, string email)
     {
         bool changed = false;
 
         if (!string.IsNullOrWhiteSpace(firstName) && firstName != FirstName?.Value)
         {
-            var firstNameResult = ResultHelper.CreateOrFail(FirstName.Create, firstName);
+            var firstNameResult = FirstName.Create(firstName);
+            if (firstNameResult.IsFailure) 
+                return Result.Failure<User>(firstNameResult.Error);
 
-            FirstName = firstNameResult;
+            FirstName = firstNameResult.Value;
             changed = true;
         }
 
         if (!string.IsNullOrWhiteSpace(lastName) && lastName != LastName?.Value)
         {
-            var lastNameResult = ResultHelper.CreateOrFail(LastName.Create, lastName);
+            var lastNameResult = LastName.Create(lastName);
+            if (lastNameResult.IsFailure) 
+                return Result.Failure<User>(lastNameResult.Error);
 
-            LastName = lastNameResult;
+            LastName = lastNameResult.Value;
             changed = true;
         }
 
         if (!string.IsNullOrWhiteSpace(age.ToString()) && age != Age?.Value)
         {
-            var ageResult = ResultHelper.CreateOrFail(Age.Create, age);
+            var ageResult = Age.Create(age);
+            if (ageResult.IsFailure) 
+                return Result.Failure<User>(ageResult.Error);
 
-            Age = ageResult;
+            Age = ageResult.Value;
             changed = true;
         }
 
         if (!string.IsNullOrWhiteSpace(email) && email != Email?.Value)
         {
-            var emailResult = ResultHelper.CreateOrFail(Email.Create, email);
+            var emailResult = Email.Create(email);
+            if (emailResult.IsFailure) 
+                return Result.Failure<User>(emailResult.Error);
 
-            Email = emailResult;
+            Email = emailResult.Value;
             changed = true;
         }
 
@@ -137,14 +157,16 @@ public sealed class User : BaseEntity
 
     public Result UpdateAvatar(string avatarUrl)
     {
-        var avatar = ResultHelper.CreateOrFail(Avatar.Create, avatarUrl);
+        var avatarResult = Avatar.Create(avatarUrl);
+        if (avatarResult.IsFailure)
+            return Result.Failure(avatarResult.Error);
 
-        Avatar = avatar;
+        Avatar = avatarResult.Value;
         UpdateAt = DateTime.UtcNow;
 
         RaiseDomainEvent(new UserAvatarUpdatedDomainEvent(Id));
 
-        return Result.Success(avatar);
+        return Result.Success(avatarResult.Value);
     }
 
     public Result PromoteToAdmin()

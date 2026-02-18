@@ -1,6 +1,4 @@
-﻿
-
-using SpendWise.Domain.Categories.Entities;
+﻿using SpendWise.Domain.Categories.Entities;
 using SpendWise.Domain.Expenses.Events;
 using SpendWise.Domain.Expenses.ValueObjects;
 using SpendWise.Domain.Users.Entities;
@@ -34,14 +32,12 @@ public class Expense : BaseEntity, IUserOwned
     public Amount Amount { get; private set; } = null!;
     public Guid CategoryId { get; private set; }
     public DateTime Date { get; private set; }
-    public Description? Description { get; private set; } 
+    public Description? Description { get; private set; }
     public Guid CreatedByUserId { get; private set; }
-    public DateTime CreatedAt { get; private set;  } 
+    public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; } = DateTime.UtcNow;
-
     public Category? Category { get; private set; }
     public User? User { get; private set; }
-
 
     public static Result<Expense> Create(
         decimal amount,
@@ -50,32 +46,36 @@ public class Expense : BaseEntity, IUserOwned
         string? description,
         Guid createdByUserId)
     {
-        var amountResult = ResultHelper.CreateOrFail(Amount.Create, amount);
-        var descriptionResult = ResultHelper.CreateOrFail(Description.Create, description ?? string.Empty);
+        var amountResult = Amount.Create(amount);
+        if (amountResult.IsFailure) return Result.Failure<Expense>(amountResult.Error);
+
+        var descriptionResult = Description.Create(description ?? string.Empty);
+        if (descriptionResult.IsFailure) return Result.Failure<Expense>(descriptionResult.Error);
 
         var expense = new Expense(
             Guid.NewGuid(),
-            amountResult,
+            amountResult.Value,
             categoryId,
             date,
-            descriptionResult,
-            createdByUserId);
+            descriptionResult.Value,
+            createdByUserId
+        );
 
         expense.RaiseDomainEvent(new ExpenseCreatedDomainEvent(expense.Id));
 
         return Result.Success(expense);
     }
 
-    public Result UpdateExpense(
-        decimal amount,
-        DateTime date,
-        string? description)
+    public Result<Expense> UpdateExpense(decimal amount, DateTime date, string? description)
     {
         bool isUpdated = false;
 
         if (amount != Amount.Value)
         {
-            Amount = ResultHelper.CreateOrFail(Amount.Create, amount);
+            var amountResult = Amount.Create(amount);
+            if (amountResult.IsFailure) return Result.Failure<Expense>(amountResult.Error);
+
+            Amount = amountResult.Value;
             isUpdated = true;
         }
 
@@ -85,20 +85,21 @@ public class Expense : BaseEntity, IUserOwned
             isUpdated = true;
         }
 
-        if (!string.IsNullOrWhiteSpace(description) 
-            && description != Description?.Value)
+        if (!string.IsNullOrWhiteSpace(description) && description != Description?.Value)
         {
-            Description = ResultHelper.CreateOrFail(Description.Create, description);
+            var descriptionResult = Description.Create(description);
+            if (descriptionResult.IsFailure) return Result.Failure<Expense>(descriptionResult.Error);
+
+            Description = descriptionResult.Value;
             isUpdated = true;
         }
 
         if (isUpdated)
         {
-            UpdatedAt = DateTime.UtcNow;    
+            UpdatedAt = DateTime.UtcNow;
             RaiseDomainEvent(new ExpenseUpdatedDomainEvent(Id));
         }
 
         return Result.Success(this);
     }
-
 }
