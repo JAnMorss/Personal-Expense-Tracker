@@ -66,10 +66,5 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired()
             .HasDefaultValueSql("GETUTCDATE()");
 
-        builder.Property(x => x.IdentityId)
-            .IsRequired()
-            .HasMaxLength(100);
-
-        builder.HasIndex(user => user.IdentityId).IsUnique();
     }
 }
