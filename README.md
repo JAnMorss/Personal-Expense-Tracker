@@ -28,7 +28,7 @@ It provides a fully functional API to manage users and personal expenses.
 |------------------|------------|
 | Backend | ASP.NET Core 9 |
 | Architecture | Clean Architecture |
-| Patterns | CQRS, Domain-Driven Design |
+| Patterns | CQRS, Domain-Driven Design, MediatR |
 | Database | EF Core (or configured via migrations) |
 | Authentication | JWT / Token-based |
 | Testing | xUnit / unit tests |
