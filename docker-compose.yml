@@ -1,0 +1,38 @@
+services:
+  spendwise.server:
+    image: ${DOCKER_REGISTRY-}spendwiseserver
+    container_name: spendwise.server
+    build:
+      context: .
+      dockerfile: src/SpendWise.Server/Dockerfile
+    depends_on:
+      - spendwise.db
+      - spendwise-seq
+
+  spendwise.db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: spendwise.db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Root1234
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+
+  spendwise-seq:
+    image: datalust/seq:latest
+    container_name: spendwise-seq
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_NOAUTHENTICATION=true
+    ports:
+      - "5342:5341"
+      - "8021:80"
+    volumes:
+      - seq-data:/data
+
+volumes:
+  mssql-data:
+  seq-data:
