@@ -13,6 +13,10 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["src/SpendWise.Server/SpendWise.Server.csproj", "src/SpendWise.Server/"]
+COPY ["src/SpendWise.Application/SpendWise.Application.csproj", "src/SpendWise.Application/"]
+COPY ["src/SpendWise.Domain/SpendWise.Domain.csproj", "src/SpendWise.Domain/"]
+COPY ["src/SpendWise.SharedKernel/SpendWise.SharedKernel.csproj", "src/SpendWise.SharedKernel/"]
+COPY ["src/SpendWise.Infrastructure/SpendWise.Infrastructure.csproj", "src/SpendWise.Infrastructure/"]
 RUN dotnet restore "./src/SpendWise.Server/SpendWise.Server.csproj"
 COPY . .
 WORKDIR "/src/src/SpendWise.Server"
